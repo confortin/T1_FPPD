@@ -9,31 +9,55 @@ import (
      "time"
 )
 
+var cycles [5]int           // ciclos concluidos por filosofo
+var eating int              // quantos filosofos estao comendo agora
+var maxEating int           // maximo de filosofos comendo ao mesmo tempo
+var totalWait time.Duration // soma dos tempos de espera pelos garfos
+var maxWait time.Duration   // maior tempo de espera
+
+
 func Philosopher(id, iteration int) {
-     time_to_think := 2
-     time_to_eat := 3
-
-     // think
-     for s := 1; s <= id*6; s++ {
-          fmt.Printf(" ")
-          }
-     fmt.Printf(" T%d\n", iteration) // Thinking
-     time.Sleep(time.Duration(time_to_think) * time.Second)
-
-     // eat
-
-     for s := 1; s <= id*6; s++ {
-          fmt.Printf(" ")
-          }
-     fmt.Printf(" E%d\n", iteration) // Eating
-     time.Sleep(time.Duration(time_to_eat) * time.Second)
+	time_to_think := 2
+	time_to_eat := 3
+ 
+	// think
+	for s := 1; s <= id*6; s++ {
+		fmt.Printf(" ")
+	}
+	fmt.Printf(" T%d\n", iteration) // Thinking
+	time.Sleep(time.Duration(time_to_think) * time.Second)
+ 
+	// NOVO: adquirir recursos (na V0 nao ha garfos, entao nao espera nada)
+	waitStart := time.Now()
+	// (nas outras versoes, o Lock dos garfos entra aqui)
+	wait := time.Since(waitStart)
+	totalWait = totalWait + wait
+	if wait > maxWait {
+		maxWait = wait
+	}
+ 
+	// eat
+	eating++                // NOVO
+	if eating > maxEating { // NOVO
+		maxEating = eating
+	}
+ 
+	for s := 1; s <= id*6; s++ {
+		fmt.Printf(" ")
+	}
+	fmt.Printf(" E%d\n", iteration) // Eating
+	time.Sleep(time.Duration(time_to_eat) * time.Second)
+ 
+	eating--     // NOVO
+	cycles[id]++ // NOVO: mais um ciclo concluido
+	// NOVO: liberar recursos (nas outras versoes, o Unlock dos garfos entra aqui)
 }
 
 func main() {
      philosophers := 5
-     rounds := 5
+     rounds := 20 //// mudamos para de 5 para 20
 
-     fmt.Println("\n[P1] [P2] [P3] [P4] [P5]\n")
+     fmt.Println("\n[P1]  [P2]  [P3]  [P4]  [P5]\n")
  
      // run philosophers
 
