@@ -6,6 +6,7 @@ package main
 
 import (
      "fmt"
+	 "sync"
      "time"
 )
 
@@ -15,6 +16,9 @@ var maxEating int           // maximo de filosofos comendo ao mesmo tempo
 var totalWait time.Duration // soma dos tempos de espera pelos garfos
 var maxWait time.Duration   // maior tempo de espera
 
+const numPhilosophers = 5
+
+var forks [numPhilosophers]sync.Mutex
 
 func Philosopher(id, iteration int) {
 	time_to_think := 200 
@@ -71,4 +75,12 @@ func main() {
      elapsed := time.Since(start)
 
      fmt.Printf("\nSequential Dinner took %s\n\n", elapsed)
+
+	fmt.Println("Tempo total:", elapsed)
+	fmt.Println("Tempo medio de espera:", totalWait/time.Duration(rounds*philosophers))
+	fmt.Println("Maior tempo de espera:", maxWait)
+	fmt.Println("Maximo de filosofos comendo juntos:", maxEating)
+	for i := 0; i < philosophers; i++ {
+		fmt.Printf("Ciclos concluidos P%d: %d\n", i+1, cycles[i])
+	}
 }
