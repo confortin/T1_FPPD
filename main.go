@@ -17,15 +17,15 @@ var maxWait time.Duration   // maior tempo de espera
 
 
 func Philosopher(id, iteration int) {
-	time_to_think := 2
-	time_to_eat := 3
+	time_to_think := 200 
+	time_to_eat := 300
  
 	// think
 	for s := 1; s <= id*6; s++ {
 		fmt.Printf(" ")
 	}
 	fmt.Printf(" T%d\n", iteration) // Thinking
-	time.Sleep(time.Duration(time_to_think) * time.Second)
+	time.Sleep(time.Duration(time_to_think) * time.Millisecond)
  
 	// NOVO: adquirir recursos (na V0 nao ha garfos, entao nao espera nada)
 	waitStart := time.Now()
@@ -46,7 +46,7 @@ func Philosopher(id, iteration int) {
 		fmt.Printf(" ")
 	}
 	fmt.Printf(" E%d\n", iteration) // Eating
-	time.Sleep(time.Duration(time_to_eat) * time.Second)
+	time.Sleep(time.Duration(time_to_eat) * time.Millisecond)
  
 	eating--     // NOVO
 	cycles[id]++ // NOVO: mais um ciclo concluido
