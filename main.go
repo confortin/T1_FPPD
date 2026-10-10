@@ -20,10 +20,19 @@ const numPhilosophers = 5
 
 var forks [numPhilosophers]sync.Mutex
 
-func Philosopher(id, iteration int) {
+var table sync.Mutex
+var wg sync.WaitGroup
+
+func Philosopher(id, rounds int) {
+	defer wg.Done()
+
+	left := id
+	right := (id + 1) % numPhilosophers
+
 	time_to_think := 200 
 	time_to_eat := 300
  
+	for iteration := 1; iteration <= rounds; iteration++ {
 	// think
 	for s := 1; s <= id*6; s++ {
 		fmt.Printf(" ")
@@ -31,11 +40,17 @@ func Philosopher(id, iteration int) {
 	fmt.Printf(" T%d\n", iteration) // Thinking
 	time.Sleep(time.Duration(time_to_think) * time.Millisecond)
  
-	// NOVO: adquirir recursos (na V0 nao ha garfos, entao nao espera nada)
+	// Adquirir recursos
 	waitStart := time.Now()
-	// (nas outras versoes, o Lock dos garfos entra aqui)
+
+	table.Lock()
+
+	forks[left].Lock()
+	forks[right].Lock()
+
 	wait := time.Since(waitStart)
 	totalWait = totalWait + wait
+
 	if wait > maxWait {
 		maxWait = wait
 	}
@@ -54,7 +69,13 @@ func Philosopher(id, iteration int) {
  
 	eating--     // NOVO
 	cycles[id]++ // NOVO: mais um ciclo concluido
-	// NOVO: liberar recursos (nas outras versoes, o Unlock dos garfos entra aqui)
+
+	// Liberar os garfos e depois o mutex global
+	forks[right].Unlock()
+	forks[left].Unlock()
+
+	table.Unlock()
+	}
 }
 
 func main() {
@@ -67,14 +88,17 @@ func main() {
 
      start := time.Now()
 
-     for i := 1; i <= rounds; i++ {
-          for j := 0; j < philosophers; j++ {
-               Philosopher(j, i)
-          }
-     }
-     elapsed := time.Since(start)
+	 wg.Add(philosophers)
 
-     fmt.Printf("\nSequential Dinner took %s\n\n", elapsed)
+	 for j := 0; j < philosophers; j++ {
+		go Philosopher(j, rounds)
+	}
+
+	 wg.Wait()
+
+	 elapsed := time.Since(start)
+
+     fmt.Printf("\nV2 - Jantar com sincronizacao excessiva levou %s\n\n", elapsed)
 
 	fmt.Println("Tempo total:", elapsed)
 	fmt.Println("Tempo medio de espera:", totalWait/time.Duration(rounds*philosophers))
