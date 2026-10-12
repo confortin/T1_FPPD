@@ -51,7 +51,7 @@ func Philosopher(id int, wg *sync.WaitGroup) {
 			maxWait = wait
 		}
 		statsMu.Unlock()
-		
+
 		// eat
 		statsMu.Lock()
 		eating++
@@ -70,7 +70,7 @@ func Philosopher(id int, wg *sync.WaitGroup) {
 		eating--     // NOVO
 		cycles[id]++ // NOVO: mais um ciclo concluido
 		statsMu.Unlock()
-		
+
 		forks[left].Unlock()
 		forks[right].Unlock()
 	}
