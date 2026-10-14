@@ -1,32 +1,29 @@
 // Example code filo_seq.go - Sequential Dinning Philosophers
 // Since is sequential, elapsed timne could be simply calculated by (roubnds*philosophers*(time_to_think+time_to_eat))
 // By Cesar De Rose
+// V0
 
 package main
 
 import (
-     "fmt"
-	 "sync"
-     "time"
+	"fmt"
+	"time"
 )
 
-@@ -15,60 +16,71 @@
+var cycles [5]int           // ciclos concluidos por filosofo
+var eating int              // quantos filosofos estao comendo agora
+var maxEating int           // maximo de filosofos comendo ao mesmo tempo
 var totalWait time.Duration // soma dos tempos de espera pelos garfos
 var maxWait time.Duration   // maior tempo de espera
 
 const numPhilosophers = 5
 
-var forks [numPhilosophers]sync.Mutex
-
 func Philosopher(id, iteration int) {
-	time_to_think := 200 
+	time_to_think := 200
 	time_to_eat := 300
 
 	// think
-	for s := 1; s <= id*6; s++ {
-		fmt.Printf(" ")
-	}
-	fmt.Printf(" T%d\n", iteration) // Thinking
+	fmt.Printf("%*s T%d\n", id*6, "", iteration) // Thinking
 	time.Sleep(time.Duration(time_to_think) * time.Millisecond)
 
 	// NOVO: adquirir recursos (na V0 nao ha garfos, entao nao espera nada)
@@ -44,10 +41,7 @@ func Philosopher(id, iteration int) {
 		maxEating = eating
 	}
 
-	for s := 1; s <= id*6; s++ {
-		fmt.Printf(" ")
-	}
-	fmt.Printf(" E%d\n", iteration) // Eating
+	fmt.Printf("%*s E%d\n", id*6, "", iteration) // Eating
 	time.Sleep(time.Duration(time_to_eat) * time.Millisecond)
 
 	eating--     // NOVO
@@ -56,29 +50,29 @@ func Philosopher(id, iteration int) {
 }
 
 func main() {
-     philosophers := 5
-     rounds := 20 //// mudamos para de 5 para 20
 
-     fmt.Println("\n[P1]  [P2]  [P3]  [P4]  [P5]\n")
+	rounds := 20 //// mudamos para de 5 para 20
 
-     // run philosophers
+	fmt.Println("\n[P1]  [P2]  [P3]  [P4]  [P5]\n")
 
-     start := time.Now()
+	// run philosophers
 
-     for i := 1; i <= rounds; i++ {
-          for j := 0; j < philosophers; j++ {
-               Philosopher(j, i)
-          }
-     }
-     elapsed := time.Since(start)
+	start := time.Now()
 
-     fmt.Printf("\nSequential Dinner took %s\n\n", elapsed)
+	for i := 1; i <= rounds; i++ {
+		for j := 0; j < numPhilosophers; j++ {
+			Philosopher(j, i)
+		}
+	}
+	elapsed := time.Since(start)
+
+	fmt.Printf("\nSequential Dinner took %s\n\n", elapsed)
 
 	fmt.Println("Tempo total:", elapsed)
-	fmt.Println("Tempo medio de espera:", totalWait/time.Duration(rounds*philosophers))
+	fmt.Println("Tempo medio de espera:", totalWait/time.Duration(rounds*numPhilosophers))
 	fmt.Println("Maior tempo de espera:", maxWait)
 	fmt.Println("Maximo de filosofos comendo juntos:", maxEating)
-	for i := 0; i < philosophers; i++ {
+	for i := 0; i < numPhilosophers; i++ {
 		fmt.Printf("Ciclos concluidos P%d: %d\n", i+1, cycles[i])
 	}
 }

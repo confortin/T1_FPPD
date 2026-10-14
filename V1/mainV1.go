@@ -1,6 +1,4 @@
-// Example code filo_seq.go - Sequential Dinning Philosophers
-// Since is sequential, elapsed timne could be simply calculated by (roubnds*philosophers*(time_to_think+time_to_eat))
-// By Cesar De Rose
+//V1
 
 package main
 
@@ -31,16 +29,13 @@ func Philosopher(id int, wg *sync.WaitGroup) {
 
 	for iteration := 1; iteration <= rounds; iteration++ {
 		// think
-		for s := 1; s <= id*6; s++ {
-			fmt.Printf(" ")
-		}
-		fmt.Printf(" T%d\n", iteration) // Thinking
+		fmt.Printf("%*s T%d\n", id*6, "", iteration) // Thinking
 		time.Sleep(time.Duration(time_to_think) * time.Millisecond)
 
 		waitStart := time.Now()
 		forks[left].Lock()
 		fmt.Printf("P%d pegou o garfo %d\n", id+1, left+1)
-		time.Sleep(100 * time.Millisecond)
+		//time.Sleep(100 * time.Millisecond) // Com time sleep, toda vez ocorre deadlock
 		fmt.Printf("P%d esperando o garfo %d\n", id+1, right+1)
 		forks[right].Lock()
 
@@ -60,10 +55,7 @@ func Philosopher(id int, wg *sync.WaitGroup) {
 		}
 		statsMu.Unlock()
 
-		for s := 1; s <= id*6; s++ {
-			fmt.Printf(" ")
-		}
-		fmt.Printf(" E%d\n", iteration) // Eating
+		fmt.Printf("%*s E%d\n", id*6, "", iteration) // Eating
 		time.Sleep(time.Duration(time_to_eat) * time.Millisecond)
 
 		statsMu.Lock()
@@ -78,8 +70,6 @@ func Philosopher(id int, wg *sync.WaitGroup) {
 
 func main() {
 	var wg sync.WaitGroup
-	numPhilosophers := 5
-	// rounds := 20 //// mudamos para de 5 para 20
 
 	fmt.Println("\n[P1]  [P2]  [P3]  [P4]  [P5]\n")
 

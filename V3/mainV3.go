@@ -24,8 +24,8 @@ func Philosopher(id int, wg *sync.WaitGroup) {
 	defer wg.Done() // avisa "terminei" quando a função acabar
 	time_to_think := 200
 	time_to_eat := 300
-	menor := min(id, (id + 1) % numPhilosophers) // pega o garfo de menor número entre os 2 que pode pegar
-	maior := max(id, (id + 1) % numPhilosophers) // pega o garfo de maior número entre os 2 que pode pegar
+	menor := min(id, (id+1)%numPhilosophers) // pega o garfo de menor número entre os 2 que pode pegar
+	maior := max(id, (id+1)%numPhilosophers) // pega o garfo de maior número entre os 2 que pode pegar
 
 	for iteration := 1; iteration <= rounds; iteration++ {
 		// think
@@ -34,10 +34,8 @@ func Philosopher(id int, wg *sync.WaitGroup) {
 
 		waitStart := time.Now()
 
-		forks[menor].Lock()  
+		forks[menor].Lock()
 		forks[maior].Lock()
-		
-		
 
 		wait := time.Since(waitStart)
 		statsMu.Lock()
@@ -63,15 +61,13 @@ func Philosopher(id int, wg *sync.WaitGroup) {
 		cycles[id]++ // NOVO: mais um ciclo concluido
 		statsMu.Unlock()
 
-		forks[menor].Unlock() 
+		forks[menor].Unlock()
 		forks[maior].Unlock()
 	}
 }
 
 func main() {
 	var wg sync.WaitGroup
-	
-	// rounds := 20 //// mudamos para de 5 para 20
 
 	fmt.Println("\n[P1]  [P2]  [P3]  [P4]  [P5]\n")
 

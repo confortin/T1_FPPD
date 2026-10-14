@@ -1,13 +1,11 @@
-// Example code filo_seq.go - Sequential Dinning Philosophers
-// Since is sequential, elapsed timne could be simply calculated by (roubnds*philosophers*(time_to_think+time_to_eat))
-// By Cesar De Rose
+//V2
 
 package main
 
 import (
-     "fmt"
-	 "sync"
-     "time"
+	"fmt"
+	"sync"
+	"time"
 )
 
 var cycles [5]int           // ciclos concluidos por filosofo
@@ -29,76 +27,70 @@ func Philosopher(id, rounds int) {
 	left := id
 	right := (id + 1) % numPhilosophers
 
-	time_to_think := 200 
+	time_to_think := 200
 	time_to_eat := 300
- 
+
 	for iteration := 1; iteration <= rounds; iteration++ {
-	// think
-	for s := 1; s <= id*6; s++ {
-		fmt.Printf(" ")
-	}
-	fmt.Printf(" T%d\n", iteration) // Thinking
-	time.Sleep(time.Duration(time_to_think) * time.Millisecond)
- 
-	// Adquirir recursos
-	waitStart := time.Now()
+		// think
+		fmt.Printf("%*s T%d\n", id*6, "", iteration) // Thinking
+		time.Sleep(time.Duration(time_to_think) * time.Millisecond)
 
-	table.Lock()
+		// Adquirir recursos
+		waitStart := time.Now()
 
-	forks[left].Lock()
-	forks[right].Lock()
+		table.Lock()
 
-	wait := time.Since(waitStart)
-	totalWait = totalWait + wait
+		forks[left].Lock()
+		forks[right].Lock()
 
-	if wait > maxWait {
-		maxWait = wait
-	}
- 
-	// eat
-	eating++                // NOVO
-	if eating > maxEating { // NOVO
-		maxEating = eating
-	}
- 
-	for s := 1; s <= id*6; s++ {
-		fmt.Printf(" ")
-	}
-	fmt.Printf(" E%d\n", iteration) // Eating
-	time.Sleep(time.Duration(time_to_eat) * time.Millisecond)
- 
-	eating--     // NOVO
-	cycles[id]++ // NOVO: mais um ciclo concluido
+		wait := time.Since(waitStart)
+		totalWait = totalWait + wait
 
-	// Liberar os garfos e depois o mutex global
-	forks[right].Unlock()
-	forks[left].Unlock()
+		if wait > maxWait {
+			maxWait = wait
+		}
 
-	table.Unlock()
+		// eat
+		eating++                // NOVO
+		if eating > maxEating { // NOVO
+			maxEating = eating
+		}
+
+		fmt.Printf("%*s E%d\n", id*6, "", iteration) // Eating
+		time.Sleep(time.Duration(time_to_eat) * time.Millisecond)
+
+		eating--     // NOVO
+		cycles[id]++ // NOVO: mais um ciclo concluido
+
+		// Liberar os garfos e depois o mutex global
+		forks[right].Unlock()
+		forks[left].Unlock()
+
+		table.Unlock()
 	}
 }
 
 func main() {
-     philosophers := 5
-     rounds := 20 //// mudamos para de 5 para 20
+	philosophers := 5
+	rounds := 20 //// mudamos para de 5 para 20
 
-     fmt.Println("\n[P1]  [P2]  [P3]  [P4]  [P5]\n")
- 
-     // run philosophers
+	fmt.Println("\n[P1]  [P2]  [P3]  [P4]  [P5]\n")
 
-     start := time.Now()
+	// run philosophers
 
-	 wg.Add(philosophers)
+	start := time.Now()
 
-	 for j := 0; j < philosophers; j++ {
+	wg.Add(philosophers)
+
+	for j := 0; j < philosophers; j++ {
 		go Philosopher(j, rounds)
 	}
 
-	 wg.Wait()
+	wg.Wait()
 
-	 elapsed := time.Since(start)
+	elapsed := time.Since(start)
 
-     fmt.Printf("\nV2 - Jantar com sincronizacao excessiva levou %s\n\n", elapsed)
+	fmt.Printf("\nV2 - Jantar com sincronizacao excessiva levou %s\n\n", elapsed)
 
 	fmt.Println("Tempo total:", elapsed)
 	fmt.Println("Tempo medio de espera:", totalWait/time.Duration(rounds*philosophers))
